@@ -89,6 +89,12 @@ def normalize_service_date(dt: pd.Series) -> pd.Series:
     out = pd.to_datetime(dt, errors="coerce")
     return out.dt.normalize()
 
+def load_yaml_config(path: str = "config.yml") -> Dict[str, Any]:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Config file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f) or {}
+    return cfg.get("pipeline", cfg)
 
 
 # ---------------------------
@@ -379,13 +385,28 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    args = build_arg_parser().parse_args()
-    setup_logging(args.log_level)
+    # Load config from YAML — no CLI args needed
+    cfg = load_yaml_config("config.yml")
+
+    input_path      = cfg["input"]
+    output_path     = cfg["output"]
+    dq_report_path  = cfg["dq_report"]
+    sheet_name      = cfg.get("sheet_name", 0)
+    drop_null       = bool(cfg.get("drop_null_critical", False))
+    log_level       = cfg.get("log_level", "INFO")
+
+    setup_logging(log_level)
+
+    # Auto-create output directories if they don't exist
+    for path in [output_path, dq_report_path]:
+        folder = os.path.dirname(path)
+        if folder:
+            os.makedirs(folder, exist_ok=True)
 
     run_pipeline(
-        input_path=args.input,
-        output_path=args.output,
-        dq_report_path=args.dq_report,
-        sheet_name=args.sheet_name,
-        drop_rows_with_null_critical_fields=args.drop_null_critical,
+        input_path=input_path,
+        output_path=output_path,
+        dq_report_path=dq_report_path,
+        sheet_name=sheet_name,
+        drop_rows_with_null_critical_fields=drop_null,
     )
