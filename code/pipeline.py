@@ -89,7 +89,7 @@ def normalize_service_date(dt: pd.Series) -> pd.Series:
     out = pd.to_datetime(dt, errors="coerce")
     return out.dt.normalize()
 
-def load_yaml_config(path: str = "config.yml") -> Dict[str, Any]:
+def load_yaml_config(path: str = "config/config.yml") -> Dict[str, Any]:
     if not os.path.exists(path):
         raise FileNotFoundError(f"Config file not found: {path}")
     with open(path, "r", encoding="utf-8") as f:
@@ -386,7 +386,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 if __name__ == "__main__":
     # Load config from YAML — no CLI args needed
-    cfg = load_yaml_config("config.yml")
+    cfg = load_yaml_config("config/config.yml")
 
     input_path      = cfg["input"]
     output_path     = cfg["output"]
