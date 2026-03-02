@@ -93,9 +93,13 @@ def normalize_service_date(dt: pd.Series) -> pd.Series:
 # Core Pipeline Steps
 # ---------------------------
 
-def load_excel(input_path: str, sheet_name: Optional[str] = None) -> pd.DataFrame:
-    # If sheet_name is None, pandas reads the first sheet by default
+def load_excel(input_path: str, sheet_name: Optional[str | int] = 0) -> pd.DataFrame:
     df = pd.read_excel(input_path, sheet_name=sheet_name)
+    if isinstance(df, dict):
+        # Fallback safety net: if a dict is still returned, grab the first sheet
+        first_key = next(iter(df))
+        logging.warning("read_excel returned a dict; using first sheet: '%s'", first_key)
+        df = df[first_key]
     return df
 
 
