@@ -1,0 +1,85 @@
+{
+  "generated_at_utc": "2026-03-02T23:08:20Z",
+  "input_path": "../data/DataAppoinments.xlsx",
+  "row_count_raw": 17294,
+  "row_count_clean": 17294,
+  "metrics": [
+    {
+      "name": "null_count.Revenue",
+      "value": 53,
+      "severity": "WARN",
+      "details": null
+    },
+    {
+      "name": "null_count.UserID",
+      "value": 0,
+      "severity": "INFO",
+      "details": null
+    },
+    {
+      "name": "null_count.AppointmentID",
+      "value": 0,
+      "severity": "INFO",
+      "details": null
+    },
+    {
+      "name": "null_count.Datasource",
+      "value": 0,
+      "severity": "INFO",
+      "details": null
+    },
+    {
+      "name": "null_count.ServiceDate",
+      "value": 0,
+      "severity": "INFO",
+      "details": null
+    },
+    {
+      "name": "revenue.non_numeric_or_missing",
+      "value": 53,
+      "severity": "WARN",
+      "details": {
+        "note": "Revenue coercion produced nulls; check source formatting."
+      }
+    },
+    {
+      "name": "revenue.le_zero_count",
+      "value": 53,
+      "severity": "WARN",
+      "details": {
+        "rule": "Revenue should be > 0 for billable encounters."
+      }
+    },
+    {
+      "name": "service_date.min",
+      "value": "2024-03-29",
+      "severity": "INFO",
+      "details": null
+    },
+    {
+      "name": "service_date.max",
+      "value": "2025-11-30",
+      "severity": "INFO",
+      "details": null
+    },
+    {
+      "name": "month_completeness.2025-11",
+      "value": {
+        "month": "2025-11",
+        "rows": 290,
+        "min_date": "2025-11-01",
+        "max_date": "2025-11-30",
+        "distinct_service_days": 30,
+        "days_in_month": 30,
+        "coverage_pct": 1.0,
+        "looks_complete": true,
+        "strict_complete": true,
+        "soft_complete": true
+      },
+      "severity": "INFO",
+      "details": {
+        "note": "Heuristic based on observed dates & day coverage; confirm with upstream owner."
+      }
+    }
+  ]
+}
