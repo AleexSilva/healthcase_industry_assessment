@@ -7,7 +7,8 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, date
 import calendar
 from typing import Dict, Any, List, Optional, Tuple
-
+import yaml
+import os
 import pandas as pd
 
 
@@ -96,9 +97,8 @@ def normalize_service_date(dt: pd.Series) -> pd.Series:
 def load_excel(input_path: str, sheet_name: Optional[str | int] = 0) -> pd.DataFrame:
     df = pd.read_excel(input_path, sheet_name=sheet_name)
     if isinstance(df, dict):
-        # Fallback safety net: if a dict is still returned, grab the first sheet
         first_key = next(iter(df))
-        logging.warning("read_excel returned a dict; using first sheet: '%s'", first_key)
+        logging.warning("read_excel returned multiple sheets; using first sheet: '%s'", first_key)
         df = df[first_key]
     return df
 
@@ -125,12 +125,40 @@ def standardize_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def clean_revenue_text(s: pd.Series) -> pd.Series:
+    """
+    Cleans Revenue values that come in as strings with stray characters like ´ or `.
+    Also removes common formatting noise (commas, spaces, currency symbols).
+    Keeps negatives if present.
+    """
+    if s is None:
+        return s
+
+    # Work in string space safely
+    x = s.astype("string")
+
+    # Remove the specific marks you mentioned + common variants
+    x = x.str.replace("´", "", regex=False)
+    x = x.str.replace("`", "", regex=False)
+    x = x.str.replace("’", "", regex=False)   # curly apostrophe
+    x = x.str.replace("'", "", regex=False)   # straight apostrophe
+
+    # Remove common formatting noise
+    x = x.str.replace(",", "", regex=False)
+    x = x.str.replace("$", "", regex=False)
+    x = x.str.replace(" ", "", regex=False)
+
+    # If there are any other non-numeric characters, drop them (except . and -)
+    x = x.str.replace(r"[^0-9\.\-]", "", regex=True)
+
+    return x
+
 
 def cast_types(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     # Revenue: numeric float (nullable)
-    df["Revenue"] = safe_to_float_nullable(df["Revenue"])
+    df["Revenue"] = safe_to_float_nullable(clean_revenue_text(df["Revenue"]))
 
     # IDs: nullable ints
     df["UserID"] = safe_to_int_nullable(df["UserID"])

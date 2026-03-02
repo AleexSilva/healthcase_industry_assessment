@@ -1,0 +1,22 @@
+pipeline:
+  input: "../data/DataAppoinments.xlsx"
+  output: "../data/DataAppointment_clean.csv"
+  dq_report: "../logs/dq_report.json"
+
+  # Optional: Excel sheet selection
+  sheet_name: 0  # can be 0 (first sheet) or a string like "Sheet1"
+
+  # Optional: strictness
+  drop_null_critical: false
+
+  # Logging
+  log_level: "INFO"
+
+  # Cleaning options
+  revenue_cleaning:
+    enabled: true
+    remove_chars: ["´", "`", "’", "'"]
+    remove_currency_symbols: true
+    remove_commas: true
+    remove_spaces: true
+    strict_numeric_filter: true
